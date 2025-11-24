@@ -1,0 +1,83 @@
+2020-04-10
+
+---CHANGES---
+* minor change to metadata deduplication logic
+
+---SUMMARY---
+total metadata rows: 51078
+51045 CORD UIDs (new: 3786, removed: 38)
+
+biorxiv_medrxiv:
+  PDF - 1625 full text (new: 353, removed: 70)
+comm_use_subset:
+  PDF - 9524 full text (new: 174, removed: 15)
+  PMC - 9148 full text (new: 174, removed: 21)
+custom_license:
+  PDF - 26505 full text (new: 3647, removed: 294)
+  PMC - 7802 full text (new: 3081, removed: 52)
+noncomm_use_subset:
+  PDF - 2490 full text (new: 130, removed: 17)
+  PMC - 2217 full text (new: 128, removed: 4)
+
+---------------------------
+2020-04-03
+
+---CHANGES---
+* added PMC XML parses; available under metadata file column "has_pmc_xml_parse"
+* renamed "has_full_text" metadata column to "has_pdf_parse"
+* restructured tar.gz outputs, example new directory structure:
+|-- comm_use_subset
+   |-- pmc_json (contains all JSON derived from PMC XML parses; filenames are PMC_ID.xml.json)
+   |-- pdf_json (contains all JSON derived from PDF parses)
+
+NOTE: some papers have both PMC XML and PDF parses
+
+---SUMMARY---
+total metadata rows: 47298
+47296 CORD UIDs (new: 1524, removed: 2)
+
+biorxiv_medrxiv:
+  PDF - 1342 full text (new: 348, removed: 59)
+comm_use_subset:
+  PDF - 9365 full text (new: 70, removed: 20)
+  PMC - 8995 full text (new: 8995, removed: 0)
+custom_license:
+  PDF - 23152 full text (new: 2541, removed: 46)
+  PMC - 4773 full text (new: 4773, removed: 0)
+noncomm_use_subset:
+  PDF - 2377 full text (new: 54, removed: 27)
+  PMC - 2093 full text (new: 2093, removed: 0)
+
+---------------------------
+2020-03-27
+
+---CHANGES---
+* added column "cord_uid" to metadata file (this persistent identifier is a 8-char alphanumeric string unique to each entry)
+* added column "url" to metadata file (URL to paper landing page where available, usually DOI/PMC/Pubmed URL)
+* normalized publication date, DOIs
+* adjusted deduplication logic slightly (affects 3 papers)
+* removed some entries that correspond to indices or table of contents
+
+---SUMMARY---
+total metadata rows: 45774
+biorxiv_medrxiv: 1053 full text (new: 194, removed: 26)
+comm_use_subset: 9315 full text (new: 210, removed: 13)
+custom_license: 20657 full text (new: 4218, removed: 520)
+noncomm_use_subset: 2350 full text (new: 6, removed: 9)
+
+---------------------------
+2020-03-20
+
+---CHANGES---
+* normalized doi, authors, title, abstract strings
+* merged redundant rows in metadata file on doi, pmcid, and pubmed_id
+* metadata sha column can now include multiple files (some PMC files have multiple associated PDFs)
+* added column in metadata file "full_text_file" to signal the tar.gz file in which the full text json resides
+
+---SUMMARY---
+total metadata rows: 44220
+biorxiv_medrxiv: 885 full text (new: 110)
+comm_use_subset: 9118 full text (new: 128)
+custom_license: 16959 full text (new: 15533)
+noncomm_use_subset: 2353 full text (new: 385)
+
