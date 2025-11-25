@@ -9,7 +9,7 @@ from loaders.lexiconLoader import load_lexicon
 def get_lexicon():
     #for time-metric measurement
     start_time = time.time()
-    lexicon = load_lexicon() #calls lexicon loader
+    lexicon = load_lexicon() #loads lexicon in RAM
     end_time = time.time()
 
     print(f" imported lexicon in {end_time - start_time:.2f} s")
