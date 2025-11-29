@@ -1,24 +1,30 @@
-
-import os
 import json
 import string
 from multiprocessing import Pool, cpu_count
 import spacy
 
 # Initialize SpaCy once (shared)
-nlp = spacy.load("en_core_web_sm", disable=["parser", "ner", "tagger"])
+nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
 
-FORBIDDEN_SUBSTRINGS = [
-    "@", ".", "/", "(", ")", "http", "https", "www", "%", "|", "=", "<", ">", 
-    "≥", "≤","±", ",", "*", "+", "&", "~", "[", "]", "×", ":", "£", '$', "#", 
-    "°", "ỹ", "˳", "ˆ", "•"
-]
+def clean_text_only(words):
+    """ Cleaning for forward index creation: lowercased alphabet tokens"""
+    cleaned = []
 
+    for w in words:
+        if not w:
+            continue
+        # remove non-ascii characters
+        w = w.encode("ascii", "ignore").decode()
+        # keep alphabetic words only
+        if w.isalpha():
+            cleaned.append(w.lower())
+
+    return cleaned
 
 def extract_text_from_json(parsed_data):
-    """Combine all textual content from a JSON document"""
     content = ""
 
+    #get metadata from doc texts 
     if "metadata" in parsed_data:
         meta = parsed_data["metadata"]
         content += " " + (meta.get("title") or "")
@@ -40,11 +46,13 @@ def extract_text_from_json(parsed_data):
             content += " " + (loc.get("settlement") or "")
             content += " " + (loc.get("country") or "")
 
+    #include abstract, body_text and back_matter
     for section in ["abstract", "body_text", "back_matter"]:
         if section in parsed_data:
             for sec in parsed_data[section]:
                 content += " " + (sec.get("text") or "")
 
+    #include citation authors' info
     if "bib_entries" in parsed_data:
         for entry in parsed_data["bib_entries"].values():
             content += " " + (entry.get("title") or "")
@@ -70,7 +78,7 @@ def read_file(filepath):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             parsed_data = json.load(f)
-        print(f"[DONE] {os.path.basename(filepath)}")  
+        
         content = extract_text_from_json(parsed_data)
         file_set = set()
         for w in content.strip().split():
@@ -81,15 +89,25 @@ def read_file(filepath):
         print(f"Error reading {filepath}: {e}")
         return set() #returns empty set if error encountered
 
+def read_file_return_list(filepath):
+    """read one filepath and return list of words"""
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            parsed_data = json.load(f)
+        content = extract_text_from_json(parsed_data)
+        return content.strip().split()  # returns list of words
+    except Exception as e:
+        print(f"Error reading filepath {filepath}: {e}")
+        return []
 
 def clean_and_lemmatize(full_set):
-    """Word filters + lemmatization"""
+    """Word filters + lemmatization, returns set for lexicon creation"""
     cleaned_words = set()
     counter = 1
     
     for word in full_set:
         w = word.lower().strip(string.punctuation)
-        if not w or not w.isascii() or not w.isalpha() or w.isdigit() or len(w) < 2 or all(c==w[0] for c in w) or any(sub in w for sub in FORBIDDEN_SUBSTRINGS):
+        if not w or not w.isascii() or not w.isalpha() or w.isdigit() or len(w) < 2 or all(c==w[0] for c in w):
             continue
         cleaned_words.add(w)
         counter += 1
@@ -129,11 +147,9 @@ def preprocess_files(filepaths, n_process=None):
     # concatenate all texts
     full_set = set().union(*file_set)
     
+    #join words from each file in a set() 
+    print(f"    Starting cleaning + lemmatization...") 
 
-    #instead of joining the full texts of all 59k docs, better to join words form each in a set() 
-    #caters for duplicates,
-    print(f"    Starting cleaning + lemmatization...")  
     # Stage 2: word filtering + lemmatization
-    lemmas = clean_and_lemmatize(full_set)
+    return clean_and_lemmatize(full_set)
     
-    return lemmas

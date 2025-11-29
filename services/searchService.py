@@ -1,5 +1,5 @@
-# calls loaders initailly to load lexicon and lindices into RAM 
-# handles search queries,and prompts information retreival from the queried words 
+# calls loaders initailly to load lexicon and indices into RAM 
+# handles search queries, and prompts information retreival from the queried words 
 # run time oriented
 
 from services.documentService import get_lexicon

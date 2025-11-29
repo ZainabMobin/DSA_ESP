@@ -12,6 +12,7 @@ if __name__ == "__main__":
                 "./dataset/custom_license/custom_license/pmc_json/"]
  
     lexicon_path = "./processed_data/lexicon.csv"
+    lexicon_path_pkl = "./processed_data/lexicon.pkl"
     word_id = 1
     file_paths = []
 
@@ -19,6 +20,8 @@ if __name__ == "__main__":
     for f in folders:
         file_paths.extend(glob.glob(os.path.join(f + "*.json")))
     
+    print("got all file paths, preparing to lemmatize")
+
     start = time.time()
     #gets all lemmas
     lemmas = preprocess_files(file_paths, n_process=8)
@@ -29,7 +32,7 @@ if __name__ == "__main__":
     #writes lexicon to csv file
     with open(lexicon_path, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['word_id,word'])
+        writer.writerow(["word_id","word"])
         for word in lemmas:
             writer.writerow([word_id, word])
             word_id += 1
