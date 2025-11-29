@@ -1,5 +1,5 @@
 """ uses the results of forward index for quicker processing """
-
+from collections import defaultdict
 import pickle, time, multiprocessing as mp
 
 #build postings for one chunk of doc_ids
@@ -33,14 +33,13 @@ if __name__ == "__main__":
     with mp.Pool(processes=n) as pool:
         results = pool.map(process_chunk, chunks)
 
-    #merge results
-    for partial in results:
-        for wid, postings in partial.items():
-            if wid not in inverted:
-                inverted[wid] = postings
-            else:
-                inverted[wid].extend(postings)
-
+    #merge results (small lists into one big inverted index) 
+    inverted = defaultdict(list) 
+    for partial in results: 
+        for wid, postings in partial.items(): 
+            inverted[wid].extend(postings) 
+            for wid, postings in inverted.items(): 
+                postings.sort(key = lambda x : x[0]) 
     end = time.time()
 
     print(f"inverted terms: {len(inverted)}")
