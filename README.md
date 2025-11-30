@@ -1,7 +1,5 @@
 # --------How to download the project---------
-[git hub repo link](https://github.com/abdullah6093/Search-Engine-DSA-Project.git)
-
-Version: 1.1
+[git hub repo link](https://github.com/ZainabMobin/DSA_ESP)
 
 
 Click Code then Download ZIP
