@@ -6,9 +6,6 @@ DONE:
 - optimized lexicon, forward index and doc map generator
 - contains full generted lexicon in csv format for viewing
 - sample generated forward index and doc map files available in csv and json
-
-FUTURE WORK:
-
 - optimize inverted index generator
 - Upload Dataset (compressed) i.e provide a way to access it with identical folder structure (compatibility with written code)
 - Scale system to accomodate dynamic indexing (processing added files, done at runtime)
