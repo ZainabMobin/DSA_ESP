@@ -1,151 +1,185 @@
-import glob, os, time, csv, pickle, json, sys
-from multiprocessing import Pool, cpu_count
-from collections import defaultdict
+from __future__ import annotations
+from dataclasses import dataclass
+from typing import Dict, List
+import sys
 
-# add project root for imports
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+#type aliases
+DocID = int
+TermID = int
 
-from loaders.lexiconLoader import load_lexicon
-from preprocessor import read_file_return_list, clean_text_only   # clean function that only removes noise
-import spacy
+#metadata path
+METADATA_PATH = "sample.csv"
 
+@dataclass
+class TermOcc:
+    tid: TermID
+    pos: List[int]
 
-forward_pkl = "./processed_data/forward_index.pkl"
-docmap_pkl = "./processed_data/doc_map.pkl"
+#global maps
+term_to_id: Dict[str, TermID] = {}
+forward_index: Dict[DocID, List[TermOcc]] = {}
 
-#files for saving sample computed data for viewing purposes
-forward_json = "./processed_data/forward_index.json"
-docmap_csv = "./processed_data/doc_map.csv"
+def parse_csv_line(line: str) -> List[str]:
+    #simple csv parser for quoted fields
+    cols: List[str] = []
+    cur: List[str] = []
+    inq = False
+    i = 0
+    n = len(line)
 
-# Shared spaCy model loaded ONCE per worker
-def init_worker(shared_lexicon, shared_lexicon_set):
-    global lexicon, lexicon_set, nlp
-    lexicon = shared_lexicon
-    lexicon_set = shared_lexicon_set
-    nlp = spacy.load("en_core_web_sm", disable=["ner", "parser", "textcat"])
+    while i < n:
+        c = line[i]
+        if c == '"':
+            if inq and i + 1 < n and line[i + 1] == '"':
+                cur.append('"')
+                i += 2
+                continue
+            else:
+                inq = not inq
+        elif c == "," and not inq:
+            cols.append("".join(cur))
+            cur = []
+        else:
+            cur.append(c)
+        i += 1
 
+    cols.append("".join(cur))
+    return cols
 
-def process_batch(file_batch):
-    """
-    file_batch = list of filepaths given to one worker.
-    We load all files, convert each to raw text, send ALL to nlp.pipe at once.
-    """
-    global lexicon, lexicon_set, nlp
+def tokenize(s: str) -> List[str]:
+    #keep alphabets and spaces only
+    cleaned_chars: List[str] = []
+    for c in s:
+        if c.isalpha() or c.isspace():
+            cleaned_chars.append(c.lower())
+        else:
+            cleaned_chars.append(" ")
+    cleaned = "".join(cleaned_chars)
+    return [tok for tok in cleaned.split() if tok]
 
-    cleaned_texts = []
-    valid_files = []
+def load_lexicon() -> None:
+    #load term ids
+    try:
+        lx = open("lexicon.txt", "r", encoding="utf-8", errors="replace")
+    except OSError:
+        sys.stderr.write("lexicon.txt not found\n")
+        sys.exit(1)
 
-    # Read & clean plain text (no lemmatizing here)
-    for fp in file_batch:
+    for line in lx:
+        parts = line.strip().split()
+        if len(parts) < 2:
+            continue
+        term = parts[0]
         try:
-            text_words = read_file_return_list(fp)         # returns list of tokens/words
-            cleaned = clean_text_only(text_words)          # lightweight cleaning
-            cleaned_texts.append(" ".join(cleaned))        # convert to single string
-            valid_files.append(fp)
-        except:
-            pass  # skip bad files
+            tid = int(parts[1])
+        except ValueError:
+            continue
+        term_to_id[term] = tid
 
-    if not cleaned_texts:
-        return []
+    lx.close()
 
-    # Batch-process all texts at once
-    docs = list(nlp.pipe(cleaned_texts, batch_size=64))   
-    # batch_size must be balanced. 
-    # Too small -> spacy overhead for individual batch takes lots of time
-    # too large -> memory overflow error, spacy cant handle a million tokens at once 
+def main() -> int:
+    load_lexicon()
 
-    results = []
+    try:
+        fin = open(METADATA_PATH, "r", encoding="utf-8", errors="replace")
+    except OSError:
+        sys.stderr.write("metadata.csv not found\n")
+        return 1
 
-    # Lemma + TF building per file
-    for doc, fp in zip(docs, valid_files):
-        tf = defaultdict(int)
+    header = fin.readline()
+    if not header:
+        sys.stderr.write("empty metadata.csv\n")
+        return 1
 
-        for tok in doc:
-            lemma = tok.lemma_.lower()
+    head = parse_csv_line(header.rstrip("\n\r"))
 
-            if lemma in lexicon_set:
-                wid = lexicon[lemma]
-                if wid:
-                    tf[wid] += 1
+    #find column indexes
+    title_col = -1
+    authors_col = -1
+    abs_col = -1
 
-        results.append((fp, dict(tf)))
+    for i, h in enumerate(head):
+        h_lower = "".join(ch.lower() for ch in h)
+        if h_lower == "title":
+            title_col = i
+        elif h_lower == "authors":
+            authors_col = i
+        elif h_lower == "abstract":
+            abs_col = i
 
-    return results
+    if title_col == -1 and abs_col == -1:
+        sys.stderr.write("no title or abstract column found\n")
+        return 1
+
+    doc_id: DocID = 1
+    max_id: DocID = 0
+
+    #read rows
+    for raw_line in fin:
+        line = raw_line.rstrip("\n\r")
+        if not line:
+            doc_id += 1
+            continue
+
+        cols = parse_csv_line(line)
+        max_needed = max(title_col, abs_col)
+        if authors_col != -1:
+            max_needed = max(max_needed, authors_col)
+        if len(cols) <= max_needed:
+            doc_id += 1
+            continue
+
+        #extract fields
+        title = cols[title_col] if title_col != -1 else ""
+        authors = cols[authors_col] if authors_col != -1 else ""
+        abstract = cols[abs_col] if abs_col != -1 else ""
+
+        text = f"{title} {authors} {abstract}"
+        tokens = tokenize(text)
+
+        #store positions
+        term_positions: Dict[TermID, List[int]] = {}
+        for pos, tok in enumerate(tokens):
+            tid = term_to_id.get(tok)
+            if tid is None:
+                continue
+            term_positions.setdefault(tid, []).append(pos)
+
+        if term_positions:
+            occs = [
+                TermOcc(tid=tid, pos=sorted(positions))
+                for tid, positions in sorted(term_positions.items())
+            ]
+            forward_index[doc_id] = occs
+            max_id = max(max_id, doc_id)
+
+        doc_id += 1
+
+    fin.close()
+
+    #write output
+    try:
+        fout = open("forward_index.txt", "w", encoding="utf-8")
+    except OSError:
+        sys.stderr.write("cannot write forward_index.txt\n")
+        return 1
+
+    for d in range(1, max_id + 1):
+        terms = forward_index.get(d)
+        if not terms:
+            continue
+
+        fout.write(f"{d} {len(terms)} ")
+        blocks = []
+        for occ in terms:
+            positions_str = ",".join(str(p) for p in occ.pos)
+            blocks.append(f"{occ.tid}:{positions_str}")
+        fout.write(";".join(blocks))
+        fout.write("\n")
+
+    fout.close()
+    return 0
 
 if __name__ == "__main__":
-
-    folders = ["./dataset/biorxiv_medrxiv/biorxiv_medrxiv/pdf_json/", 
-            # "./dataset/comm_use_subset/comm_use_subset/pdf_json/",
-            # "./dataset/comm_use_subset/comm_use_subset/pmc_json/", 
-            # "./dataset/noncomm_use_subset/noncomm_use_subset/pdf_json/",
-            # "./dataset/noncomm_use_subset/noncomm_use_subset/pmc_json/",
-            # "./dataset/custom_license/custom_license/pdf_json/", 
-            # "./dataset/custom_license/custom_license/pmc_json/"
-            ]
-
-    # Collect JSON files
-    file_paths = []
-    for f in folders:
-        file_paths.extend(glob.glob(os.path.join(f, "*.json")))
-
-    print(f"Total files: {len(file_paths)}")
-
-    # Load lexicon
-    lexicon = load_lexicon()
-    lexicon_set = frozenset(lexicon)
-
-    # How many files each worker should batch at once
-    BATCH_SIZE = 5
-
-    # Split file list into batches
-    file_batches = [file_paths[i:i+BATCH_SIZE] for i in range(0, len(file_paths), BATCH_SIZE)]
-
-    forward_index = {}
-    doc_map = {}
-    doc_id = 1
-
-    start = time.time()
-    print("Processing with multi-file batching...")
-
-    with Pool(
-        processes=cpu_count(),
-        initializer=init_worker,
-        initargs=(lexicon, lexicon_set)
-    ) as pool:
-
-        for batch_result in pool.imap_unordered(process_batch, file_batches):
-            for fp, tf in batch_result:
-                forward_index[doc_id] = tf
-                doc_map[doc_id] = fp
-                doc_id += 1
-
-                if doc_id % 200 == 0:
-                    print(f"Processed {doc_id} documents...")
-
-    end = time.time()
-    print(f"Forward index docs: {len(forward_index)}")
-    print(f"Total time taken: {end-start:.2f} s")
-
-    # SAVE FINAL OUTPUTS
-    os.makedirs("./processed_data", exist_ok=True)
-    pickle.dump(forward_index, open(forward_pkl, "wb"))
-    pickle.dump(doc_map, open(docmap_pkl, "wb"))
-
-
-    #SAVE SAMPLE OUTPUTS FOR SHOWCASING
-    # first 50 entries of doc_map saved to CSV
-    with open(docmap_csv, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(["doc_id", "filepath"])
-        for doc_id, fp in list(doc_map.items())[:50]:
-            writer.writerow([doc_id, fp])
-
-    # Save only 1 full document entry of forward_index as JSON
-    if forward_index:
-        first_doc_id = next(iter(forward_index))  # get the first doc_id
-        first_doc_entry = {first_doc_id: forward_index[first_doc_id]}  # just this doc's term frequencies
-
-        with open(forward_json, "w", encoding="utf-8") as f:
-            json.dump(first_doc_entry, f, indent=2)
-
-    print("Saved forward index + doc map!")
+    sys.exit(main())
