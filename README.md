@@ -1,0 +1,19 @@
+Document Processing Pipeline
+
+Efficient batch-based document processing for scalable indexing and search.
+
+**Features**
+
+Docmap & Batchmap: Track documents and batches; IDs remain consistent when adding/resuming files.
+
+Batch Preprocessing: Processes files in batches of 100 to reduce I/O overhead and improve scalability.
+
+Lexicon & Forward Index: Fast generation; .pkl files give ~3x compression over JSON.
+
+Performance
+Step	Time
+Batch preprocessing (all files)	3–4 hrs
+Lexicon generation	21 s
+Forward index creation	90 s
+
+Batching ensures smooth processing and avoids disk I/O issues with large datasets.
