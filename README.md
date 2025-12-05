@@ -1,6 +1,8 @@
-Document Processing Pipeline
+Document Processing Pipeline: Efficient batch-based document processing for scalable indexing and search.
 
-Efficient batch-based document processing for scalable indexing and search.
+DRIVE DOWNLOAD LINKS:
+- Full forward Index: https://drive.google.com/file/d/13HByszFfK3bbwCB8krjHAvZkSTk5KxEW/view?usp=drive_link
+- Batch_Content: https://drive.google.com/drive/folders/1Zsd_K8D4pN_S7_3VCEHcUJ-gxoFMMK0z?usp=sharing
 
 **Features**
 
