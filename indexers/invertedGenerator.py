@@ -1,51 +1,47 @@
-import glob
-import os
 import csv
-from collections import defaultdict, Counter
-from preprocessor import preprocess_files, read_file, clean_and_lemmatize
+import pickle
+from collections import defaultdict
 import time
+import os
 
-def build_lexicon(file_paths):
-    lemmas = set()
-    doc_words = []
-    
-    for doc_id, filepath in enumerate(file_paths):
-        words_in_doc = read_file(filepath)
-        lemmas.update(words_in_doc)
-        doc_words.append((doc_id, words_in_doc))
-        
-    lemmas = clean_and_lemmatize(lemmas)
-    
-    lemma_to_id = {word: idx+1 for idx, word in enumerate(sorted(lemmas))}
-    
-    return lemma_to_id, doc_words
+FORWARD_CSV = "./processed_data/forward_index.csv"
+INVERTED_PKL = "./processed_data/inverted_index.pkl"
+INVERTED_CSV = "./processed_data/inverted_index.csv"
 
-def inverted_index(file_paths, output_path="./processed_data/inverted_index.csv"):
-    lemma_to_id, doc_words = build_lexicon(file_paths)
-    
-    inverted = defaultdict(lambda: defaultdict(int))  # word_id -> doc_id -> freq
-    
-    for doc_id, words in doc_words:
-        lemmas_in_doc = [word for word in words if word in lemma_to_id]
-        freq = Counter(lemmas_in_doc)
-        for lemma, count in freq.items():
-            word_id = lemma_to_id[lemma]
-            inverted[word_id][doc_id] = count
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+def build_inverted_index(forward_csv):
+    inverted_index = defaultdict(list)
+    with open(forward_csv, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            docID = int(row["docID"])
+            wordID = int(row["wordID"])
+            freq = int(row["frequency"])
+            inverted_index[wordID].append((docID, freq))
+    return inverted_index
+
+def save_inverted_index_pickle(inverted_index, filepath):
+    with open(filepath, "wb") as f:
+        pickle.dump(inverted_index, f)
+
+def save_inverted_index_csv(inverted_index, filepath):
+    with open(filepath, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(['word_id', 'doc_id', 'frequency'])
-        
-        for word_id, doc_freqs in inverted.items():
-            for doc_id, freq in doc_freqs.items():
-                writer.writerow([word_id, doc_id, freq])
+        writer.writerow(["wordID", "postings"])  #postings as string
+        for wordID, postings in inverted_index.items():
+            postings_str = ";".join(f"{doc}:{freq}" for doc, freq in postings)
+            writer.writerow([wordID, postings_str])
 
 if __name__ == "__main__":
-    folders = ["./dataset/biorxiv_medrxiv/biorxiv_medrxiv/pdf_json/"]
-    file_paths = []
-    for f in folders:
-        file_paths.extend(glob.glob(os.path.join(f + "*.json")))
-    
+    os.makedirs("./processed_data", exist_ok=True)
     start = time.time()
-    inverted_index(file_paths)
-    print(f"Inverted index created in {time.time() - start:.2f} seconds")
+    print("[INFO] Building inverted index from forward index...")
+    inverted = build_inverted_index(FORWARD_CSV)
+    print(f"[INFO] Built inverted index with {len(inverted)} entries")
+
+    print("[INFO] Saving inverted index to pickle...")
+    save_inverted_index_pickle(inverted, INVERTED_PKL)
+
+    print("[INFO] Saving inverted index to CSV...")
+    save_inverted_index_csv(inverted, INVERTED_CSV)
+
+    print(f"[INFO] Inverted index saved. Time taken: {time.time() - start:.2f} seconds")

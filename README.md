@@ -3,6 +3,10 @@ Document Processing Pipeline: Efficient batch-based document processing for scal
 DRIVE DOWNLOAD LINKS:
 - Full forward Index: https://drive.google.com/file/d/13HByszFfK3bbwCB8krjHAvZkSTk5KxEW/view?usp=drive_link
 - Batch_Content: https://drive.google.com/drive/folders/1Zsd_K8D4pN_S7_3VCEHcUJ-gxoFMMK0z?usp=sharing
+- for inverted index run the invertedGenerator.py file in loader 
+- for barrell builder  run the build_barrels  file in loader 
+- also u can adjust total doc per barrel  by changig size in initial of build barrel.py file 
+ BARREL_SIZE = 5000  #number of documents per barrel
 
 **Features**
 
