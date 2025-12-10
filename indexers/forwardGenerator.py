@@ -7,7 +7,7 @@ from functools import partial
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from preprocessor import load_docmap, load_batchmap
-from loaders.lexiconLoader import load_lexicon
+from loaders.lexiconLoader import load_lexicon  # This should load the dict from lexicon.pkl
 
 docmap = load_docmap()
 batchmap = load_batchmap()
@@ -20,12 +20,11 @@ with open(FORWARD_CSV, 'w', newline='', encoding='utf-8') as f:
     writer = csv.writer(f)
     writer.writerow(['docID', 'wordID', 'frequency'])
 
-#batch filepath and batchID passed as parameter in a tuple
+# batch filepath and batchID passed as parameter in a tuple
 def process_batch(batch_tuple, lexicon):
     """
     Read a batch pickle and return a list of (docID, wordID, frequency) for that batch
     """
-    print(f"[DEBUG] type of lexicon in worker: {type(lexicon)}")
     batchID, fp = batch_tuple
     batch_docs = pickle.load(open(fp, "rb"))
     batch_rows = []
@@ -40,7 +39,6 @@ def process_batch(batch_tuple, lexicon):
         for wordID, count in freq.items():
             batch_rows.append((docID, wordID, count))
 
-    print(f"[DEBUG] done batch {docID%100} {batchID}")
     return batch_rows
 
 
@@ -62,4 +60,4 @@ if __name__ == "__main__":
             writer.writerows(batch_rows)
 
     end = time.time()
-    print(f"Forward index created in {end-start:.2f} s")
+    print(f"Forward index created in {end-start:.2f} seconds")

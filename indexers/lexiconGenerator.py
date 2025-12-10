@@ -48,9 +48,12 @@ if __name__ == "__main__":
     for lemma_set in batch_lemma_sets:
         lexicon.update(lemma_set)
 
-    end = time.time()
-
     print(f"[INFO] Total unique lemmas: {len(lexicon)}")
+
+    # Build dictionary mapping lemma → word_id (sorted for stable ordering)
+    lexicon_dict = {lemma: word_id for word_id, lemma in enumerate(sorted(lexicon), start=1)}
+
+    end = time.time()
     print(f"[INFO] Time taken: {end-start:.2f} seconds")
 
     os.makedirs("./processed_data", exist_ok=True)
@@ -58,12 +61,12 @@ if __name__ == "__main__":
     # --- SAVE CSV ---
     with open(lexicon_csv, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["word_id", "word"])  # correct header
-        for word_id, lemma in enumerate(lexicon, start=1):
-            writer.writerow([word_id, lemma])
+        writer.writerow(["word_id", "word"])  # header
+        for word, word_id in lexicon_dict.items():
+            writer.writerow([word_id, word])
 
     # --- SAVE PICKLE ---
     with open(lexicon_pkl, "wb") as f:
-        pickle.dump(lexicon, f)
+        pickle.dump(lexicon_dict, f)
 
     print("[INFO] Lexicon saved to CSV and PKL.")

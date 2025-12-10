@@ -1,0 +1,7 @@
+forward_index.csv
+inverted_index.csv
+*.pkl
+lexicon.csv
+lexicon.pkl
+__pycache__/
+barrels/

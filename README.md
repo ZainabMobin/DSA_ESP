@@ -4,6 +4,7 @@ DRIVE DOWNLOAD LINKS:
 - Full forward Index: https://drive.google.com/file/d/13HByszFfK3bbwCB8krjHAvZkSTk5KxEW/view?usp=drive_link
 - Batch_Content: https://drive.google.com/drive/folders/1Zsd_K8D4pN_S7_3VCEHcUJ-gxoFMMK0z?usp=sharing
 
+- just run code lexicon first then forward then inverted then lexicon 
 **Features**
 
 Docmap & Batchmap: Track documents and batches; IDs remain consistent when adding/resuming files.
