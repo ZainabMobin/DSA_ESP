@@ -33,7 +33,11 @@ def process_batch(batch_tuple, lexicon):
         if not wordIDs:
             continue
         freq = Counter(wordIDs)
-        batch_forward[docID] = list(freq.items())
+        doc_length = sum(freq.values()) # total terms in document
+        batch_forward[docID] ={
+            "length": doc_length,
+            "terms": list(freq.items())
+        } 
 
     return batch_forward
 
@@ -44,7 +48,7 @@ def merge_batch_into_index(batch_dict, forward_index):
     forward_index.update(batch_dict)
 
 if __name__ == "__main__":
-    forward_index_nested = defaultdict(list)
+    forward_index_nested = {}
     total_batches = len(batchmap)  # added for progress tracking
     processed_batches = 0         
 
@@ -69,6 +73,6 @@ if __name__ == "__main__":
 
     print(f"[INFO] Nested forward index saved to {FORWARD_GZIP}")
 
-    # Print sample entry
+    # Print first entry as sample
     sample_docs = list(forward_index_nested.items())[:1]
     print("Sample entry:", sample_docs)

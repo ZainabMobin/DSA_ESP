@@ -64,7 +64,8 @@ def build_inverted_index(forward_index):
     Returns: dict of wordID -> list of (docID, freq)
     """
     inverted_index = defaultdict(list)
-    for docID, word_list in forward_index.items():
+    for docID, doc_data in forward_index.items():
+        word_list = doc_data["terms"]
         for wordID, freq in word_list:
             inverted_index[wordID].append((docID, freq))
     return inverted_index
