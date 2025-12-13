@@ -1,23 +1,23 @@
-import os, sys, time
+import os, sys, time, pickle, gzip
 
 # Add project root to path if needed
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import pickle, gzip
 from collections import defaultdict
 from loaders.invertedLoader import load_inverted
 
+
 BARREL_SIZE = 5000  # number of documents per barrel
 BARREL_FOLDER = "./processed_data/barrels/"
-LEXICON_GZIP = "./processed_data/lexicon_with_barrels.pkl.gz"# lexicon with barrel postings gzipped version
+LEXICON_GZIP = "./processed_data/lexicon_with_barrels.pkl.gz"  # lexicon with barrel postings gzipped version
 
-def create_barrels(inverted_index, barrel_size=BARREL_SIZE, output_folder=BARREL_FOLDER):
+def create_barrels_with_byte_offsets(inverted_index, barrel_size=BARREL_SIZE, output_folder=BARREL_FOLDER):
     """
-    Split inverted index into sorted barrels by docID ranges, save as pickle and CSV,
-    and update the lexicon with barrel information including start_idx.
+    Split inverted index into sorted barrels by docID ranges, save each barrel as a binary file,
+    and update lexicon with byte offsets for each word's postings.
     """
     barrels = defaultdict(lambda: defaultdict(list))  # barrel_id -> wordID -> postings list
-    updated_lexicon = defaultdict(list)              # wordID -> list of {barrel_id, start_idx, length}
+    updated_lexicon = defaultdict(list)              # wordID -> list of {barrel_id, offset, length_bytes}
 
     print("[INFO] Splitting inverted index into barrels...")
 
@@ -30,6 +30,7 @@ def create_barrels(inverted_index, barrel_size=BARREL_SIZE, output_folder=BARREL
     os.makedirs(output_folder, exist_ok=True)
 
     print(f"[INFO] Saving sorted barrels to folder: {output_folder}")
+
     for barrel_id, barrel_data in barrels.items():
         start_time = time.time()
 
@@ -37,47 +38,42 @@ def create_barrels(inverted_index, barrel_size=BARREL_SIZE, output_folder=BARREL
         for wordID in barrel_data:
             barrel_data[wordID].sort(key=lambda x: x[0])
 
-        # Sort wordIDs in this barrel
+        # Sort wordIDs
         sorted_wordIDs = sorted(barrel_data.keys())
 
-        # build flat barrel for correct start_idx ---
-        barrel_postings = []  # flat list of all postings in this barrel
-        for wordID in sorted_wordIDs:
-            postings_list = barrel_data[wordID]
-            start_idx = len(barrel_postings)   # starting position in flat list
-            length = len(postings_list)
-
-            # Append postings to flat barrel
-            for docID, freq in postings_list:
-                barrel_postings.append((wordID, docID, freq))
-
-            # Update lexicon
-            updated_lexicon[wordID].append({
-                "barrel_id": barrel_id,
-                "start_idx": start_idx,
-                "length": length
-            })
-
-        # Save PICKLE (flat list)
         barrel_pkl_path = os.path.join(output_folder, f"barrel_{barrel_id}.pkl")
         with open(barrel_pkl_path, "wb") as f:
-            pickle.dump(barrel_postings, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+            # Write each word's postings individually
+            for wordID in sorted_wordIDs:
+                postings_list = barrel_data[wordID]
+                
+                offset = f.tell()             # current byte position
+                data = pickle.dumps(postings_list, protocol=pickle.HIGHEST_PROTOCOL)
+                f.write(data)
+                length_bytes = len(data)
+
+                # Store byte offset info in lexicon
+                updated_lexicon[wordID].append({
+                    "barrel_id": barrel_id,
+                    "offset": offset,
+                    "length_bytes": length_bytes
+                })
 
         end_time = time.time()
         print(f"[TIME] Barrel {barrel_id} saved in {end_time - start_time:.4f} seconds.")
-        print(f"[SAVED] Barrel {barrel_id} with {len(sorted_wordIDs)} sorted wordIDs (.pkl)")
+        print(f"[SAVED] Barrel {barrel_id} with {len(sorted_wordIDs)} words (.pkl)")
 
-    # Save the updated lexicon with barrel info
+    # Save the updated lexicon with barrel info (byte offsets)
     with gzip.open(LEXICON_GZIP, "wb") as f:
         pickle.dump(updated_lexicon, f, protocol=pickle.HIGHEST_PROTOCOL)
     print(f"[INFO] Gzipped lexicon saved to {LEXICON_GZIP}")
-
 
 if __name__ == "__main__":
 
     inverted_index = load_inverted()
 
     start_time = time.time()
-    create_barrels(inverted_index)
+    create_barrels_with_byte_offsets(inverted_index)
     end_time = time.time()
     print(f"[INFO] Barrel creation complete in {end_time-start_time:.3f} s")

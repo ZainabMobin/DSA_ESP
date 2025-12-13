@@ -30,7 +30,7 @@ DRIVE DOWNLOAD LINKS:
 ---
 
 ## TODO
-
+- Add Ranking logic
 - Add **semantic search**, refine query function, add **autocomplete**  
 - Add **runtime indexing** function for processing uploaded documents  
 - Add relevant backend for **querying** and uploading added files to the backend server  
