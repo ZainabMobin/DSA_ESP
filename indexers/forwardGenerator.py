@@ -1,4 +1,4 @@
-from collections import defaultdict, Counter
+from collections import Counter
 from multiprocessing import Pool, cpu_count
 from functools import partial
 import sys, os, time
@@ -7,7 +7,7 @@ import pickle, gzip
 # Add project root to path if needed
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from preprocessor import load_docmap, load_batchmap
+from loaders.mapLoaders import load_docmap, load_batchmap
 from loaders.lexiconLoader import load_lexicon
 
 # Load mappings
@@ -48,6 +48,7 @@ def merge_batch_into_index(batch_dict, forward_index):
     forward_index.update(batch_dict)
 
 if __name__ == "__main__":
+    
     forward_index_nested = {}
     total_batches = len(batchmap)  # added for progress tracking
     processed_batches = 0         

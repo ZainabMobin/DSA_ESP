@@ -1,13 +1,30 @@
+#BM25 SEARCH AND RANKING ALGORITHM APPLIED
 import spacy, time, sys, os, string
+from collections import defaultdict
+import math  # 🟢 added for BM25 computation
 
 # Add project root to path if needed
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from loaders.lexiconLoader import load_lexicon, load_lexicon_posting_gzip
 from loaders.barrelLoader import fetch_barrel_results_binary_offset
+from loaders.forwardLoader import load_forward  # 🟢 added for BM25
+from loaders.mapLoaders import load_docmeta, load_docmap
+
 # Load lexicon(s) once
 lexicon_gzip = load_lexicon_posting_gzip()
 lexicon = load_lexicon()
+forward_index = load_forward()
+doc_meta = load_docmeta()
+doc_map = load_docmap()
+
+# Precompute average document length
+N = len(forward_index)
+avgdl = sum(doc["length"] for doc in forward_index.values()) / N
+
+# BM25 parameters
+k1 = 1.5
+b = 0.75
 
 def get_barrel_info(wordID):
     """Retrieve barrel information for a given wordID from the lexicon_gzip."""
@@ -15,28 +32,24 @@ def get_barrel_info(wordID):
         return None
     
     meta = lexicon_gzip[wordID]
-    #process the word to look into all given barrels
+    postings = []
+    df = 0  # document frequency
 
-    for i, b in enumerate(meta):
+    for b in meta:
         barrel_id = b['barrel_id']
         offset = b['offset']
         length_bytes = b['length_bytes']
-        print(f"Barrel {i}: barrel_id={barrel_id}, offset={offset}, length={length_bytes}")
         
-        #fetch revelevant barrel info
-        info = fetch_barrel_results_binary_offset(barrel_id, offset, length_bytes)
-        #display info for first barrel only, Huge print statements halt the process and take up more time
-        if i==1:
-            print(f"  Barrel {i} info: {info}")
+        barrel_info = fetch_barrel_results_binary_offset(barrel_id, offset, length_bytes)
+        df = df + len(barrel_info)  # accumulate document frequency
 
-        #combine docIDs to be prosessed from the forward index in multiprocess/pool for ranking, 
-        # rank top docs and return top 10 (get the top 10 docIDs, get the doc filepaths, return 
-        # title and relevant metadata for fast display from the file paths (maybe implement meta 
-        # data in forward index but it is already so full, have to look into a solution ), finally 
-        # return the text parse if the button is clicked on a specific file on the engine and 
-        # display the parsed results at frontend
+        for docID, tf in barrel_info:
+             postings.append((docID, tf))
 
-def clean_and_lemmatize_query(words_list):  # 🟥 new function, same logic as preprocessing
+    return postings, df
+
+
+def clean_and_lemmatize_query(words_list):  # 🟥 new function
     """Filters and lemmatize query words"""
     cleaned_words = []
     
@@ -54,34 +67,68 @@ def clean_and_lemmatize_query(words_list):  # 🟥 new function, same logic as p
     
     return lemmas
 
-# Load spaCy model for lemmatization
+# Load spaCy model
 nlp = spacy.load("en_core_web_sm")
 
-def some_querying_func():
-    query = input("Enter your search query: ")
+
+def get_word_bm25_ranking(query_tokens, top_k=10):
+    scores = defaultdict(float)
+
+    for token in query_tokens:
+        wordID = lexicon.get(token)
+        if not wordID:
+            continue
+
+        postings, df = get_barrel_info(wordID)
+        if df == 0:
+            continue
+
+        idf = math.log((N - df + 0.5) / (df + 0.5) + 1)
+
+        for docID, tf in postings:
+            dl = forward_index[docID]["length"]
+            score = idf * ( (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * dl / avgdl)) )
+            scores[docID] += score
+
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+
+
+def querying_function(query, top_k):
+    """
+    function recieves query as a string, processes words, 
+    gets relevant docInfo from postings,
+    calculates bm ranking of each result and returns top k results 
+    """
+
     start = time.time()
     
-    # clean and Lemmatize query words
     raw_words = query.strip().split()
     tokens = clean_and_lemmatize_query(raw_words)
     
     print(f"Lemmatized tokens: {tokens}")
     
-    # Lookup word in lexicon to get wordID and extract barrel info
-    for token in tokens:
-        entry = lexicon.get(token) 
-        if entry:
-            get_barrel_info(entry)
-            #print(f"'{entry}-{token}' found in lexicon:")
-            # entry (wordID) has a list of barrel postings
-            # for i, b in enumerate(lexicon_gzip[entry]):
-            #     print(f"  Barrel {i}: barrel_id={b['barrel_id']}, offset={b['offset']}, length={b['length']}")
-        else:
-            print(f"'{token}' not found in lexicon")
-            
+    # 🟢 BM25 ranking
+    ranked_docs = get_word_bm25_ranking(tokens, top_k)
+    
+    print("[INFO] Top ranked documents:")
+    for docID, score in ranked_docs:
+        meta = doc_meta[docID]
+        print(
+            f"DocID: {docID}, Score: {score:.4f}, "
+            f"Path: {doc_map[docID]}, "
+            f"Title: {meta.get('title', '')}, "
+            f"Authors: {', '.join(meta.get('authors', []))}, "
+        )
+
     end = time.time()
     print(f"Query processed in {end - start:.4f} seconds")
 
-# Example usage
+
+def run_query(top_k):
+    query = input("Enter your search query: ")
+    querying_function(query, top_k)
+
+
 if __name__ == "__main__":
-    some_querying_func()
+    top_k = 10  # Number of top documents to retrieve
+    run_query(top_k)

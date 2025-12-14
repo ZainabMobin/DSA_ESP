@@ -1,7 +1,10 @@
 from multiprocessing import Pool, cpu_count
-from preprocessor import load_batchmap
-import time, os, csv, pickle, gzip
+import time, os, sys, pickle, gzip
 
+# Add project root to path if needed
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from loaders.mapLoaders import load_batchmap
 
 def process_batch(batch_tuple):
     """
