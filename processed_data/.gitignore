@@ -1,4 +1,3 @@
-lexicon.csv
 lexicon.pkl.gz
 lexicon_with_barrels.pkl.gz
 forward_index.pkl.gz
@@ -8,5 +7,4 @@ glove_vectors.npy
 glove_words.pkl.gz
 barrels/
 __pycache__/
-trie_data.pkl
-trie_metrics.json
+trie_data.pkl.gz
