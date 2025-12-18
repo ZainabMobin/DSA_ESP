@@ -271,10 +271,18 @@ function renderSuggestions(words) {
     words.forEach(word => {
         const item = document.createElement("div");
         item.textContent = word;
-        item.onclick = () => {
-            searchInput.value = word;
-            clearSuggestions();
-        };
+       item.onclick = () => {
+    const inputValue = searchInput.value;
+    const words = inputValue.split(" ");
+
+    // Replace only the last word
+    words[words.length - 1] = word;
+
+    searchInput.value = words.join(" ") + " ";
+    clearSuggestions();
+    searchInput.focus();
+};
+
         box.appendChild(item);
     });
 
