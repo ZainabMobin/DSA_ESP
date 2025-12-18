@@ -1,0 +1,58 @@
+{
+  "paper_id": "iot001a2b3c4d5e6f7g8h9i0",
+  "metadata": {
+    "title": "Scalable Architectures and Data Management in Internet of Things Systems",
+    "authors": [
+      {
+        "first": "Ayesha",
+        "middle": [],
+        "last": "Khan",
+        "suffix": "",
+        "affiliation": {
+          "laboratory": "",
+          "institution": "Department of Computer Engineering, NUST",
+          "location": {
+            "postCode": "44000",
+            "settlement": "Islamabad",
+            "country": "Pakistan"
+          }
+        },
+        "email": "ayesha.khan@nust.edu.pk"
+      }
+    ],
+    "abstract": [
+      {
+        "text": "The Internet of Things (IoT) connects physical devices through sensors, networks, and cloud platforms. This paper explores scalable IoT architectures, focusing on data collection, processing, and real-time analytics.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "section": "Abstract"
+      }
+    ],
+    "body_text": [
+      {
+        "text": "IoT systems consist of sensing devices, communication protocols, and backend services. Efficient data management is required due to the high volume and velocity of sensor-generated data.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "eq_spans": [],
+        "section": "Introduction"
+      },
+      {
+        "text": "We analyze edge computing and cloud-based processing models to reduce latency and improve scalability in large IoT deployments.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "eq_spans": [],
+        "section": "Methods"
+      },
+      {
+        "text": "Results show that edge-based preprocessing significantly reduces network load while maintaining system responsiveness.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "eq_spans": [],
+        "section": "Results"
+      }
+    ],
+    "bib_entries": {},
+    "ref_entries": {},
+    "back_matter": []
+  }
+}

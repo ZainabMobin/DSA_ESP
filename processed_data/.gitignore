@@ -1,0 +1,8 @@
+lexicon.csv
+lexicon.pkl.gz
+lexicon_with_barrels.pkl.gz
+forward_index.pkl.gz
+inverted_index.pkl.gz
+doc_meta.pkl.gz
+barrels/
+__pycache__/

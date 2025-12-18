@@ -1,0 +1,58 @@
+{
+  "paper_id": "space004a5b6c7d8e9f0g",
+  "metadata": {
+    "title": "Technological Challenges and Future Prospects of Human Space Travel",
+    "authors": [
+      {
+        "first": "Elena",
+        "middle": [],
+        "last": "Petrov",
+        "suffix": "",
+        "affiliation": {
+          "laboratory": "",
+          "institution": "Institute of Aerospace Engineering",
+          "location": {
+            "postCode": "101000",
+            "settlement": "Moscow",
+            "country": "Russia"
+          }
+        },
+        "email": "elena.petrov@iae.ru"
+      }
+    ],
+    "abstract": [
+      {
+        "text": "Human space travel presents significant engineering, biological, and logistical challenges. This paper reviews propulsion systems, life-support technologies, and mission planning strategies.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "section": "Abstract"
+      }
+    ],
+    "body_text": [
+      {
+        "text": "Space missions require reliable propulsion, radiation shielding, and sustainable life-support systems to ensure astronaut safety.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "eq_spans": [],
+        "section": "Introduction"
+      },
+      {
+        "text": "We analyze chemical, electric, and nuclear propulsion methods for long-duration missions.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "eq_spans": [],
+        "section": "Methods"
+      },
+      {
+        "text": "Results suggest that hybrid propulsion and closed-loop life-support systems are essential for future interplanetary travel.",
+        "cite_spans": [],
+        "ref_spans": [],
+        "eq_spans": [],
+        "section": "Results"
+      }
+    ],
+    "bib_entries": {},
+    "ref_entries": {},
+    "back_matter": []
+  }
+}
