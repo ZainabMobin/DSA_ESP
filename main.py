@@ -245,3 +245,15 @@ def open_json(file_path: str):
 #     return {"results": results}
 
 
+@app.get("/about.html")
+async def about_page():
+    return FileResponse(os.path.join("frontend", "about.html"))
+
+@app.get("/safety.html")
+async def safety_page():
+    return FileResponse(os.path.join("frontend", "safety.html"))
+
+    
+@app.get("/index.html")
+async def index_page():
+    return FileResponse(os.path.join("frontend", "index.html"))

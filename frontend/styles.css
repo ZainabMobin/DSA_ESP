@@ -28,15 +28,22 @@ nav ul {
 nav ul li { 
     display: inline; 
     margin: 0 20px; 
+    transition: 0.5s;
+}
+nav ul li:hover{
+    color: #989898; 
+  
 }
 nav ul li a { 
     color: white; 
     text-decoration: none; 
     font-weight: bold; 
     font-size: 1.1rem; 
+      transition: 0.5s;
 }
 nav ul li a:hover { 
-    text-decoration: underline; 
+   color: #989898; 
+   
 }
 
 /* =========================
@@ -366,17 +373,14 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-position: absolute;
-bottom: 0%;
-left: 0;
-right: 0;
-  gap: 12px;                /* spacing between buttons */
-  flex-wrap: wrap;          /* wrap on small screens */
 
-  margin: 40px auto 60px;   /* pushes it to bottom */
-  padding: 0 16px;
+  position: absolute;
+  bottom: 0%;
+  left: 0;
+  right: 0;
 
-  position: static;         /* IMPORTANT */
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 #pagination button {

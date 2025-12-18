@@ -4,15 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>About Us - CovidSearch</title>
-    <link rel="stylesheet" href="styles.css" />
+   <link rel="stylesheet" href="/static/styles.css">
+
 </head>
 <body>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About The Team</a>
-        <a href="safety.html">Safety Tips</a>
-    </nav>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About The Team</a></li>
+    <li><a href="safety.html">Safety Tips</a></li>
+  </ul>
+</nav>
+
 
     <div class="about__container">
         <h1>Project Details</h1>
@@ -34,10 +38,10 @@
         <h2 style="margin-bottom: 30px;">Developed By</h2>
         <div class="about__student-grid">
             <div class="about__card">
-                <img src="https://via.placeholder.com/150" alt="Student 1" />
+                <img src="https://avatars.githubusercontent.com/u/196634943?v=4" alt="Student 1" />
                 <h3>Zainab Mobeen</h3>
-                <span class="about__role">Frontend Developer</span>
-                <p>Roll No: CS-2021-001</p>
+                 <span class="about__role">Software Engineer</span>
+                <p>BE-SE-15-B 503939</p>
                 <p>Focus: UI/UX & Data Visualization</p>
             </div>
 
@@ -50,10 +54,10 @@
             </div>
 
             <div class="about__card">
-                <img src="https://via.placeholder.com/150" alt="Student 3" />
+                <img src="data:image/png;base64,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" alt="Student 3" />
                 <h3>Manahil Farhan</h3>
-                <span class="about__role">Data Analyst</span>
-                <p>Roll No: CS-2021-003</p>
+                 <span class="about__role">Software Engineer</span>
+                <p>BE-SE-15-B 503939</p>
                 <p>Focus: Dataset Cleaning & Indexing</p>
             </div>
         </div>
