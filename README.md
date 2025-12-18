@@ -220,4 +220,3 @@ These updates improve preprocessing efficiency, add metadata tracking, and provi
 - Add role for **admin** (hardcoded credentials for now) to sign in and upload files  
 - Add relevant backend for uploading added files to the backend server  
 - Add **frontend** for admin portal and file uploading from local machine
-- Refine Autocomplete function and integrate backend with frontend
