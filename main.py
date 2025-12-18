@@ -152,7 +152,7 @@ async def search(req: QueryRequest):
     results = main_querying_function(req.query, search_context, req.top_k)
     end = time.time()
 
-    time_taken_ms = round((end - start) * 100, 2)
+    time_taken_ms = round((end - start) * 1000, 2)
 
     print(f"[INFO] Query processed in {time_taken_ms} ms")
 
