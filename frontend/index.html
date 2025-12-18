@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>CovidSearch - Final Project</title>
-        <link rel="stylesheet" href="/static/styles.css">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CovidSearch - Final Project</title>
+    <link rel="stylesheet" href="/static/styles.css" />
 </head>
+
 <body>
 
     <nav>
@@ -24,19 +26,51 @@
             <input id="search-input" type="text" placeholder="Search for symptoms, statistics, or regions..." />
             <button id="search-btn">Search</button>
         </div>
-        <div id="results"></div>
+        <!-- QUERY INFO + SORT -->
+        <div id="query-info" class="query-info hidden">
+
+            <div class="query-card">
+                ⏱ Time taken: <strong><span id="query-time">0</span> ms</strong>
+            </div>
+
+            <div class="query-card">
+                Sort by:
+                <select id="sort-select">
+                    <option value="latest">Latest first</option>
+                    <option value="oldest">Oldest first</option>
+                </select>
+            </div>
+
+        </div>
+
+
+
+        <!-- RESULTS -->
+        <div id="results">
+            <!-- Search result cards will be generated dynamically by script.js -->
+        </div>
+
+
+
+
+        <!-- PAGINATION -->
+        <div id="pagination"></div>
+
 
         <div class="index__info-section">
             <h2>About Our Project</h2>
             <p>
-                Welcome to <strong>CovidSearch</strong>. This is a specialized search engine developed as a Final Semester Project. 
-                We have indexed a comprehensive COVID-19 dataset containing global statistics, medical reports, and research papers.
-            </p>
-            <p>
-                Our goal is to provide fast, accurate retrieval of information related to the pandemic to help researchers and the general public stay informed.
+                Welcome to <strong>CovidSearch</strong>. This is a specialized search engine developed as a Final
+                Semester Project.
             </p>
         </div>
+
     </div>
+
+
+
+
     <script src="/static/script.js"></script>
 </body>
+
 </html>
