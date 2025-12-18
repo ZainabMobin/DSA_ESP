@@ -13,11 +13,16 @@ os.makedirs("./batch_contents", exist_ok=True)
 
 def load_docmap():
     """Load the docmap from gzip pickle. Returns {docID: filepath}"""
+    start = time.time()
+
     if not os.path.exists(DOCMAP_GZIP):
         return {}
     try:
         with gzip.open(DOCMAP_GZIP, "rb") as f:
             docmap = pickle.load(f)
+        end = time.time()
+        print(f"[INFO] Loaded docmap in {end - start:.4f} seconds")
+            
         return docmap
     except Exception as e:
         print(f"[WARN] Failed to load docmap: {e}")
@@ -26,11 +31,15 @@ def load_docmap():
 
 def load_batchmap():
     """Load the batchmap from gzip pickle. Returns {batchID: batch_path}"""
+    
+    start = time.time()
     if not os.path.exists(BATCHMAP_GZIP):
         return {}
     try:
         with gzip.open(BATCHMAP_GZIP, "rb") as f:
             batchmap = pickle.load(f)
+            end = time.time()
+            print(f"[INFO] Loaded docmap in {end - start:.4f} seconds")
         return batchmap
     except Exception as e:
         print(f"[WARN] Failed to load batchmap: {e}")
@@ -38,11 +47,16 @@ def load_batchmap():
 
 
 def load_docmeta():
+
+    start = time.time()
     if not os.path.exists(DOCMETA_GZIP):
         print("[WARN] doc_meta file not found.")
         return {}
     with gzip.open(DOCMETA_GZIP, "rb") as f:
         docmeta = pickle.load(f)
+    
+    end = time.time()
+    print(f"[INFO] Loaded docmap in {end - start:.4f} seconds")
     return docmeta
 
 
@@ -53,8 +67,8 @@ if __name__ == "__main__":
     end = time.time()
 
     print(f"[INFO] Loaded docmap in {end - start:.4f} seconds")
-    key, value = list(docmap.items())[1]
-    print(f"docID: {key}, Filepath: {value}")
+    # key, value = list(docmap.items())[1]
+    # print(f"docID: {key}, Filepath: {value}")
     
     
     start = time.time()
@@ -62,8 +76,8 @@ if __name__ == "__main__":
     end = time.time()
 
     print(f"[INFO] Loaded batchmap in {end - start:.4f} seconds")
-    key, value = list(batchmap.items())[1]
-    print(f"BatchID: {key}, Filepath: {value}")
+    # key, value = list(batchmap.items())[1]
+    # print(f"BatchID: {key}, Filepath: {value}")
 
 
     start = time.time()

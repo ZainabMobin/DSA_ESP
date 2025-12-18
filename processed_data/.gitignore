@@ -8,3 +8,4 @@ glove_words.pkl.gz
 barrels/
 __pycache__/
 trie_data.pkl.gz
+raw_metadata.pkl.gz

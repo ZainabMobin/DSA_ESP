@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CovidSearch - Final Project</title>
-    <link rel="stylesheet" href="styles.css" />
-
-   
-
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>CovidSearch - Final Project</title>
+        <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
@@ -40,46 +37,6 @@
             </p>
         </div>
     </div>
-
+    <script src="/static/script.js"></script>
 </body>
-
-    <script>
-        const searchBtn = document.getElementById("search-btn");
-        const searchInput = document.getElementById("search-input");
-        const resultsDiv = document.getElementById("results");
-
-        searchBtn.addEventListener("click", async () => {
-            const query = searchInput.value.trim();
-            if (!query) return;
-
-            try {
-                const res = await fetch("http://127.0.0.1:8000/search-query", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ query })
-                });
-
-                const data = await res.json();
-
-                // Simple render
-                resultsDiv.innerHTML = "";
-                data.results.forEach(r => {
-                    const p = document.createElement("p");
-
-                    // Combine title and authors
-                    const authors = r.authors && r.authors.length > 0 ? r.authors.join(", ") : "Unknown authors";
-                    p.textContent = `${r.title} — Authors: ${authors}`;
-
-                    resultsDiv.appendChild(p);
-                });
-
-
-            } catch (err) {
-                console.error("Search failed:", err);
-            }
-        });
-        </script>
-
 </html>

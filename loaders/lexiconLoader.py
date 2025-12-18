@@ -18,7 +18,7 @@ def load_lexicon():
 
     end_time = time.time()
     print(f"[INFO] Loaded lexicon in {end_time - start_time:.2f} s from PKL.GZIP")
-    print("Sample entries: ", list(lexicon.items())[:1])
+    # print("Sample entries: ", list(lexicon.items())[:1])
     return lexicon
     
 
@@ -38,7 +38,7 @@ def load_lexicon_posting_gzip():
 
     end_time = time.time()
     print(f"[INFO] Loaded lexicon with barrel pointers in {end_time - start_time:.2f} s from PKL.GZIP")
-    print("Sample entries: ", list(lexicon.items())[:1])
+    # print("Sample entries: ", list(lexicon.items())[:1])
     return lexicon
 
 

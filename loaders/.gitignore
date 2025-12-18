@@ -1,2 +1,3 @@
 __pycache__/
 convert_maps_gzip.py
+convert_metadata_gzip.py

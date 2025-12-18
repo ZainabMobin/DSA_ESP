@@ -13,7 +13,7 @@ def load_inverted():
     end = time.time()
 
     print(f"[INFO] Loaded inverted index in {end-start:.2f} seconds")
-    print("Sample entries: ", list(inverted_index.items())[:1])
+    # print("Sample entries: ", list(inverted_index.items())[:1])
     return inverted_index
 
 

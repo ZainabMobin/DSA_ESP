@@ -1,15 +1,23 @@
 
 **Refined Pipeline**
 
-Batch Process content -> Save in Batches with bAtchmap and DocMap -> Create docmeta from docmap -> Create Lexicon from Processed data -> Create nested forward index -> Create Inverted index -> Create barrels and lexicon with barrel postings (lexicon_with_ barrels)
+Batch Process content -> Save in Batches with bAtchmap and DocMap -> Create docmeta (title, authors, url, year) from docmap -> Create Lexicon from Processed data -> Create nested forward index -> Create Inverted index -> Create barrels and lexicon with barrel postings (lexicon_with_ barrels)
 
 
 **DRIVE DOWNLOAD LINKS:**
 
 - Batch_Content: https://drive.google.com/drive/folders/1Zsd_K8D4pN_S7_3VCEHcUJ-gxoFMMK0z?usp=sharing
-- Updated processed_data: https://drive.google.com/file/d/1KzXj3-N6RwT_nQfFkJfW9DIsojPuh6bR/view?usp=sharing
+- Updated processed_data: https://drive.google.com/file/d/1OCBj_PRGXN8H74Qg5Fl06wUTxAkq5Tcx/view?usp=sharing
 - Additional files for adding into the dataset: https://drive.google.com/file/d/1jsFo2-hH6wUBKkGCIZABirbIRsnnAyAX/view?usp=drive_link 
 - Refined Data Structure Overview with Metrics: https://docs.google.com/spreadsheets/d/1jKqQZzippl7SMyg0yTrYjWqUqTngqF5FFzuWc-p0yfM/edit?usp=sharing
+
+---
+## Updates
+
+- Read metadata.csv (converted to .pkl.gz for efficiency) for meta data extraction instead of relying on doc text parses (tight coupling and not really suitable for added random parses without entries in the metadata)
+- Fully implemented autocompete logic with last word suggestions
+- Querying function time went up drastically (from 20ms to 800ms for single word, most probaly becaues of more fields in the metadata. 5 word query timed to be 1.2s < 1.5 s)
+- Added all metadata fields to search results (docID, score, path, title, authors, publish_time, url) and ensured missing values are handled safely
 
 ## Features
 
@@ -36,10 +44,8 @@ Batch Process content -> Save in Batches with bAtchmap and DocMap -> Create docm
   - Provides **prefix search** and ranked suggestions.  
   - Saves Trie to disk in **pkl.gz** for fast future loads.
 
----
-## Updates
-
 ### Preprocessor
+
 - Checks if a file path is already in the `docmap`; if yes, skips processing.
 - Saves `docmap` and `batchmap` in **gzip** format for efficient storage.
 - Adds `doc-meta` for file metadata including **title** and **authors**, mapped to `docID`.
@@ -65,6 +71,7 @@ Batch Process content -> Save in Batches with bAtchmap and DocMap -> Create docm
   - `last_updated` timestamp
 - Provides **prefix search** and ranked **autocomplete suggestions**.
 - Saves the trie to disk in **pkl.gz** format for fast future loads.
+
 
 ---
 
@@ -210,7 +217,7 @@ These updates improve preprocessing efficiency, add metadata tracking, and provi
 
 ## TODO
 - Add **runtime indexing** function for processing uploaded documents  
-- Add relevant backend for uploading added files to the backend server  
 - Add role for **admin** (hardcoded credentials for now) to sign in and upload files  
+- Add relevant backend for uploading added files to the backend server  
 - Add **frontend** for admin portal and file uploading from local machine
-- Refine Autocomplete function ad integrate backend with frontend
+- Refine Autocomplete function and integrate backend with frontend

@@ -94,11 +94,10 @@ def convert_and_save():
 def load_glove_matrix():
     start = time.time()
 
-    # 🧠 load words
+    # load words
     with gzip.open(WORDS_GZIP, "rb") as f:
         words = pickle.load(f)
-
-    # ⚡ load vectors (can use mmap_mode='r' if needed)
+    # load vectors (can use mmap_mode='r' if needed)
     matrix = np.load(VECTORS_NPY)
 
     end = time.time()
