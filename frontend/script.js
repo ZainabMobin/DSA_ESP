@@ -293,3 +293,25 @@ function clearSuggestions() {
     const box = document.getElementById("autocomplete-box");
     if (box) box.remove();
 }
+
+
+// add file option
+
+const openBtn = document.getElementById("openUploadModal");
+const modal = document.getElementById("uploadModal");
+const closeBtn = document.getElementById("closeUploadModal");
+
+openBtn.onclick = () => {
+  modal.style.display = "block";
+};
+
+closeBtn.onclick = () => {
+  modal.style.display = "none";
+};
+
+window.onclick = (event) => {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+};
+

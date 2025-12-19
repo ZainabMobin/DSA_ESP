@@ -257,3 +257,41 @@ async def safety_page():
 @app.get("/index.html")
 async def index_page():
     return FileResponse(os.path.join("frontend", "index.html"))
+
+
+# add document
+
+
+ import os, json, time
+
+DOCUMENT_DIR = "documents"
+os.makedirs(DOCUMENT_DIR, exist_ok=True)
+
+def add_document(file=None, text=None):
+    timestamp = int(time.time())
+    filename = f"doc_{timestamp}.txt"
+    path = os.path.join(DOCUMENT_DIR, filename)
+
+    if file:
+        ext = file.filename.split(".")[-1]
+
+        if ext == "txt":
+            content = file.read().decode("utf-8")
+
+        elif ext == "json":
+            data = json.loads(file.read().decode("utf-8"))
+            content = json.dumps(data, indent=2)
+
+        else:
+            return "Unsupported file type"
+
+    elif text:
+        content = text
+
+    else:
+        return "No document provided"
+
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    return "Document added successfully"
