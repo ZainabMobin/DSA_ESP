@@ -120,6 +120,15 @@ def convert_to_pkl(args):
     return (docID, lemmas)
 
 
+#----------------- Fetch File parse from filepath --------------------
+def fetch_file_parse(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data
+    except Exception:
+        return None
+
 # ------------------------- Main Workflow -------------------------
 
 if __name__ == "__main__":

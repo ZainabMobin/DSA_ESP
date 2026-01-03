@@ -217,6 +217,5 @@ These updates improve preprocessing efficiency, add metadata tracking, and provi
 
 ## TODO
 - Add **runtime indexing** function for processing uploaded documents  
-- Add role for **admin** (hardcoded credentials for now) to sign in and upload files  
 - Add relevant backend for uploading added files to the backend server  
-- Add **frontend** for admin portal and file uploading from local machine
+- Add role for **admin** (hardcoded credentials for now) to sign in and upload files

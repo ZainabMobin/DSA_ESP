@@ -124,11 +124,11 @@ function renderResults() {
             actionsDiv.appendChild(openWebsiteLink);
         }
 
-        if (r.path) {
+        if (r.docID !== undefined) {
             const openJsonBtn = document.createElement("button");
             openJsonBtn.className = "btn-link";
             openJsonBtn.textContent = "Open JSON";
-            openJsonBtn.onclick = () => openJsonFile(encodeURIComponent(r.path));
+            openJsonBtn.onclick = () => openJsonFile(r.docID, r.title);
             actionsDiv.appendChild(openJsonBtn);
         }
 
@@ -140,13 +140,126 @@ function renderResults() {
     }
 }
 
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function renderDocument(json) {
+    const meta = json.metadata || {};
+    let html = `<div class="document-renderer">`;
+
+    // Paper ID
+    html += `<div class="section paper-id">
+        <p><strong>Paper ID:</strong> ${escapeHtml(json.paper_id || "[paper_id] not available")}</p>
+    </div>`;
+
+    // Title
+    html += `<div class="section">
+        <h2>Title</h2>
+        <p class="document-title">${escapeHtml(meta.title || "[title] not available")}</p>
+    </div>`;
+
+    // Authors
+    html += `<div class="section">
+        <h2>Authors</h2>`;
+    const authors = meta.authors || json.authors;
+    if (authors && authors.length > 0) {
+        html += `<ul>`;
+        authors.forEach(a => {
+            html += `<li>${escapeHtml(
+                `${a.first || ""} ${a.middle?.join(" ") || ""} ${a.last || ""}`
+            )} - ${escapeHtml(a.affiliation?.institution || "[institution not available]")} (${escapeHtml(a.email || "[email not available]")})</li>`;
+        });
+        html += `</ul>`;
+    } else {
+        html += `<p>[authors] not available</p>`;
+    }
+    html += `</div>`;
+
+    // Abstract
+    const abstract = meta.abstract || json.abstract;
+    html += `<div class="section">
+        <h2>Abstract</h2>`;
+    if (abstract && abstract.length > 0) {
+        abstract.forEach(p => {
+            html += `<p>${escapeHtml(p.text)}</p>`;
+        });
+    } else {
+        html += `<p>[abstract] not available</p>`;
+    }
+    html += `</div>`;
+
+    // Body Text
+    const bodyText = meta.body_text || json.body_text;
+    html += `<div class="section">
+        <h2>Body Text</h2>`;
+    if (bodyText && bodyText.length > 0) {
+        bodyText.forEach(p => {
+            html += `<div class="paragraph"><h3>${escapeHtml(p.section || "Section")}</h3><p>${escapeHtml(p.text)}</p></div>`;
+        });
+    } else {
+        html += `<p>[body_text] not available</p>`;
+    }
+    html += `</div>`;
+
+    // Bibliography
+    const bibEntries = meta.bib_entries || json.bib_entries;
+    html += `<div class="section">
+        <h2>Bibliography</h2>`;
+    if (bibEntries && Object.keys(bibEntries).length > 0) {
+        html += `<ul>`;
+        Object.entries(bibEntries).forEach(([id, entry]) => {
+            html += `<li><strong>${escapeHtml(id)}</strong>: ${escapeHtml(entry.title || "[title not available]")} (${entry.year || "[year not available]"})</li>`;
+        });
+        html += `</ul>`;
+    } else {
+        html += `<p>[bib_entries] not available</p>`;
+    }
+    html += `</div>`;
+
+    // Reference Entries
+    const refEntries = meta.ref_entries || json.ref_entries;
+    html += `<div class="section">
+        <h2>Figures & Tables</h2>`;
+    if (refEntries && Object.keys(refEntries).length > 0) {
+        html += `<ul>`;
+        Object.entries(refEntries).forEach(([id, entry]) => {
+            html += `<li><strong>${escapeHtml(id)}</strong> (${escapeHtml(entry.type)}): ${escapeHtml(entry.text || "[caption not available]")}</li>`;
+        });
+        html += `</ul>`;
+    } else {
+        html += `<p>[ref_entries] not available</p>`;
+    }
+    html += `</div>`;
+
+    // Back Matter
+    const backMatter = meta.back_matter || json.back_matter;
+    html += `<div class="section">
+        <h2>Back Matter</h2>`;
+    if (backMatter && backMatter.length > 0) {
+        backMatter.forEach(p => {
+            html += `<div class="paragraph"><h3>${escapeHtml(p.section || "Section")}</h3><p>${escapeHtml(p.text)}</p></div>`;
+        });
+    } else {
+        html += `<p>[back_matter] not available</p>`;
+    }
+    html += `</div>`;
+
+    html += `</div>`;
+    return html;
+}
+
 /* =========================
    OPEN JSON FILE
-   ========================= */
-function openJsonFile(encodedPath) {
-    const path = decodeURIComponent(encodedPath);
-
-    fetch(`http://127.0.0.1:8000/json/${path}`)
+============================= */
+function openJsonFile(docID, title) {
+    fetch(`http://127.0.0.1:8000/json/${docID}`)
         .then(res => {
             if (!res.ok) throw new Error("Unable to fetch JSON");
             return res.json();
@@ -156,15 +269,18 @@ function openJsonFile(encodedPath) {
             win.document.write(`
                 <html>
                 <head>
-                    <title>JSON Viewer - ${path}</title>
+                    <title>${title}</title>
                     <style>
                         body { font-family: monospace; background:#f4f7f6; padding:20px; }
                         pre { background:white; padding:20px; border-radius:8px; white-space: pre-wrap; }
+                        h2,h3 { margin-top: 20px; }
+                        p { margin: 5px 0; }
                     </style>
+                    <link rel="stylesheet" href="/static/styles.css" />
                 </head>
                 <body>
-                    <h2>JSON File: ${path}</h2>
-                    <pre>${JSON.stringify(json, null, 2)}</pre>
+                    <h1>Document ID: ${docID} </h1>
+                    ${renderDocument(json)}
                 </body>
                 </html>
             `);

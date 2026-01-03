@@ -373,9 +373,13 @@ button:hover {
 .about__card:hover { 
     transform: translateY(-5px); 
 }
+.about__card img#supervisor { 
+    width: 170px; 
+    height: auto; 
+}
 .about__card img { 
     width: 100px; 
-    height: 100px; 
+    height: auto; 
     border-radius: 50%; 
     background: #ddd; 
     margin-bottom: 15px; 
@@ -484,4 +488,81 @@ header {
   display: block;
   width: 100%;
   clear: both;
+}
+
+/* =========================
+   DOCUMENT RENDERER
+   ========================= */
+
+.document-renderer {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  line-height: 1.6;
+  font-size: 1rem;
+  color: #333;
+}
+
+.document-renderer .section {
+  margin-bottom: 30px;
+}
+
+.document-renderer h1 {
+  font-size: 2rem;
+  color: #0056b3;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #0056b3;
+  padding-bottom: 8px;
+}
+
+.document-renderer h2 {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 12px;
+  border-left: 4px solid #0056b3;
+  padding-left: 10px;
+}
+
+.document-renderer h3 {
+  font-size: 1.1rem;
+  color: #444;
+  margin-top: 15px;
+  margin-bottom: 8px;
+}
+
+.document-renderer p {
+  margin: 6px 0;
+  color: #555;
+}
+
+.document-renderer ul {
+  list-style: disc;
+  margin: 10px 0 10px 25px;
+  padding: 0;
+}
+
+.document-renderer li {
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.document-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #222;
+}
+
+.paragraph {
+  margin-bottom: 15px;
+  padding: 12px;
+  background: #f9fafb;
+  border-left: 3px solid #ddd;
+  border-radius: 6px;
+}
+
+.paper-id {
+  margin-bottom: 20px;
 }

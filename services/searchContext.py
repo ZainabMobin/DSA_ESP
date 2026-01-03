@@ -3,6 +3,7 @@ from loaders.forwardLoader import load_forward
 from loaders.mapLoaders import load_docmap, load_docmeta
 from loaders.gloveLoader import load_glove_matrix
 from services.trieService import TrieAutocomplete
+from indexers.preprocessor import fetch_file_parse
 
 class SearchContext:
     def __init__(self):
@@ -26,3 +27,14 @@ class SearchContext:
         words = query.split(" ")
         last_word = words[-1]
         return self.trie.autocomplete(last_word)
+    
+    #method to get fileparse from docID 
+    def get_file_content(self, docID: int):
+        try:
+            fp = self.doc_map.get(docID)
+            # Filepath not found
+            if not fp: return None
+            return fetch_file_parse(fp)
+        except Exception:
+            return None
+    
