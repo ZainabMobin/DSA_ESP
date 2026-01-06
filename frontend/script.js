@@ -156,13 +156,13 @@ function renderDocument(json) {
 
     // Paper ID
     html += `<div class="section paper-id">
-        <p><strong>Paper ID:</strong> ${escapeHtml(json.paper_id || "[paper_id] not available")}</p>
+        <p><strong>Paper ID:</strong> ${escapeHtml(json.paper_id || "Paper ID not available")}</p>
     </div>`;
 
     // Title
     html += `<div class="section">
         <h2>Title</h2>
-        <p class="document-title">${escapeHtml(meta.title || "[title] not available")}</p>
+        <p class="document-title">${escapeHtml(meta.title || "Title not available")}</p>
     </div>`;
 
     // Authors
@@ -178,7 +178,7 @@ function renderDocument(json) {
         });
         html += `</ul>`;
     } else {
-        html += `<p>[authors] not available</p>`;
+        html += `<p>Authors not available</p>`;
     }
     html += `</div>`;
 
@@ -191,7 +191,7 @@ function renderDocument(json) {
             html += `<p>${escapeHtml(p.text)}</p>`;
         });
     } else {
-        html += `<p>[abstract] not available</p>`;
+        html += `<p>Abstract not available</p>`;
     }
     html += `</div>`;
 
@@ -204,7 +204,7 @@ function renderDocument(json) {
             html += `<div class="paragraph"><h3>${escapeHtml(p.section || "Section")}</h3><p>${escapeHtml(p.text)}</p></div>`;
         });
     } else {
-        html += `<p>[body_text] not available</p>`;
+        html += `<p>Body Text not available</p>`;
     }
     html += `</div>`;
 
@@ -219,7 +219,7 @@ function renderDocument(json) {
         });
         html += `</ul>`;
     } else {
-        html += `<p>[bib_entries] not available</p>`;
+        html += `<p>Bib Entries not available</p>`;
     }
     html += `</div>`;
 
@@ -234,7 +234,7 @@ function renderDocument(json) {
         });
         html += `</ul>`;
     } else {
-        html += `<p>[ref_entries] not available</p>`;
+        html += `<p>Reference Entries not available</p>`;
     }
     html += `</div>`;
 
@@ -247,7 +247,7 @@ function renderDocument(json) {
             html += `<div class="paragraph"><h3>${escapeHtml(p.section || "Section")}</h3><p>${escapeHtml(p.text)}</p></div>`;
         });
     } else {
-        html += `<p>[back_matter] not available</p>`;
+        html += `<p>Back Matter not available</p>`;
     }
     html += `</div>`;
 
@@ -259,34 +259,37 @@ function renderDocument(json) {
    OPEN JSON FILE
 ============================= */
 function openJsonFile(docID, title) {
+    console.log("🟡 openJsonFile() called, docID:", docID);
+
     fetch(`http://127.0.0.1:8000/json/${docID}`)
         .then(res => {
+            console.log("🟢 Response received:", res.status, res.statusText);
             if (!res.ok) throw new Error("Unable to fetch JSON");
             return res.json();
         })
         .then(json => {
-            const win = window.open();
+            console.log("🟢 JSON parsed successfully");
+            
+            const win = window.open("", "_blank");
+            console.log("win is", win);
+            win.document.open();
             win.document.write(`
                 <html>
                 <head>
                     <title>${title}</title>
-                    <style>
-                        body { font-family: monospace; background:#f4f7f6; padding:20px; }
-                        pre { background:white; padding:20px; border-radius:8px; white-space: pre-wrap; }
-                        h2,h3 { margin-top: 20px; }
-                        p { margin: 5px 0; }
-                    </style>
                     <link rel="stylesheet" href="/static/styles.css" />
                 </head>
                 <body>
-                    <h1>Document ID: ${docID} </h1>
                     ${renderDocument(json)}
                 </body>
                 </html>
             `);
             win.document.close();
         })
-        .catch(() => alert("Unable to load JSON file"));
+        .catch(() => {
+            console.log("Unable to fetch json parse");
+            alert("Unable to load JSON file") 
+        });
 }
 
 /* =========================

@@ -98,10 +98,14 @@ async def health():
 # -------------------------------------------------
 @app.get("/json/{docID:int}")
 def open_json(docID: int):
+    print("🔥HIT /json ROUTE doc_id: ", docID)
     fp = search_context.get_file_content(docID)
     if fp is None:
+        print("JSON parse NOT found")
         raise HTTPException(status_code=404, detail="File Not Found")
-    return fp 
+    print("JSON parse found!")
+    print("TYPE OF fp:", type(fp))
+    return fp
 
 @app.get("/about.html")
 async def about_page():
