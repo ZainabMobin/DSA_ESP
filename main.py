@@ -98,7 +98,7 @@ async def health():
 # -------------------------------------------------
 @app.get("/json/{docID:int}")
 def open_json(docID: int):
-    print("🔥HIT /json ROUTE doc_id: ", docID)
+    print("HIT /json ROUTE doc_id: ", docID)
     fp = search_context.get_file_content(docID)
     if fp is None:
         print("JSON parse NOT found")

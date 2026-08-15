@@ -137,10 +137,10 @@ def main_querying_function(query, context, top_k):
     tokens = clean_and_lemmatize_query(raw_words)
     print(f"\nLemmatized tokens: {tokens}")
     
-    # 🟢 BM25 ranking
+    # BM25 ranking
     ranked_docs = get_word_bm25_ranking(tokens, lexicon, lexicon_gzip, forward_index, top_k=top_k*5)  # get more for semantic rerank
     
-    # 🟢 Semantic re-ranking
+    # Semantic re-ranking
     reranked_docs = semantic_rerank(tokens, ranked_docs, forward_index, lexicon, glove_words, glove_matrix, top_k=top_k)
     
     print("[INFO] Top ranked documents after semantic rerank:")
